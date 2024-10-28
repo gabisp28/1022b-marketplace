@@ -36,6 +36,24 @@ app.get("/produtos",async(req,res)=>{
     }
 });
 
+app.post("/produtos",async(req,res)=>{  
+    try{
+        const conexao = await mysql.createConnection({
+            host: process.env.dbhost?process.env.dbhost:"mysql-marketplace-ifms-mysql-gabi.l.aivencloud.com",
+            user:process.env.dbuser?process.env.dbuser:"avnadmin",
+            password:process.env.dbpassword?process.env.dbpassword:"",
+            database:process.env.dbname?process.env.dbname:"defaultdb",
+            port:process.env.dbport?parseInt(process.env.dbport):26924
+        })
+        const {id,nome,descricao,preco,imagem} = req.body
+        const [result,fields]  = await conexao.query("INSERT INTO produtos VALUES (?,?,?,?,?)",[id,nome,descricao,preco,imagem])
+        await conexao.end()
+        res.send(result)
+    }catch(e){
+        res.status(500).send("Erro do servidor")
+    }
+});
+
 app.get("/usuarios",async(req,res)=>{
 
     //O que eu tenho que fazer aqui dentro?
@@ -55,6 +73,7 @@ app.get("/usuarios",async(req,res)=>{
         //PASSO 4: Colocar os dados do banco no response
         res.send(result)
     }catch(e){
+        console.log(e)
         res.status(500).send("Erro do servidor")
     }
 });
